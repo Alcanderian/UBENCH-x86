@@ -24,7 +24,7 @@
 
 class SSEMulLatency : public IUbench {
 public:
-    SSEMulLatency(const int64_t freq) : IUbench(freq) {
+    SSEMulLatency() {
         instruction_count_ = _1G() / 40 * 16;
     };
 private:
@@ -68,7 +68,7 @@ private:
 
 class SSEMulThroughput : public IUbench {
 public:
-    SSEMulThroughput(const int64_t freq) : IUbench(freq) {
+    SSEMulThroughput() {
         instruction_count_ = _1G() / 20 * 16;
     };
 private:
@@ -112,7 +112,7 @@ private:
 
 class SSEAddLatency : public IUbench {
 public:
-    SSEAddLatency(const int64_t freq) : IUbench(freq) {
+    SSEAddLatency() {
         instruction_count_ = _1G() / 40 * 16;
     };
 private:
@@ -156,7 +156,7 @@ private:
 
 class SSEAddThroughput : public IUbench {
 public:
-    SSEAddThroughput(const int64_t freq) : IUbench(freq) {
+    SSEAddThroughput() {
         instruction_count_ = _1G() / 20 * 16;
     };
 private:
@@ -200,7 +200,7 @@ private:
 
 class SSEMulAddIndepenDepth8Throughput : public IUbench {
 public:
-    SSEMulAddIndepenDepth8Throughput(const int64_t freq) : IUbench(freq) {
+    SSEMulAddIndepenDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
     };
 private:
@@ -244,7 +244,7 @@ private:
 
 class SSEMulAddDepenDepth8Throughput : public IUbench {
 public:
-    SSEMulAddDepenDepth8Throughput(const int64_t freq) : IUbench(freq) {
+    SSEMulAddDepenDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
     };
 private:
@@ -288,7 +288,7 @@ private:
 
 class SSEMulAddDepenDepth10Throughput : public IUbench {
 public:
-    SSEMulAddDepenDepth10Throughput(const int64_t freq) : IUbench(freq) {
+    SSEMulAddDepenDepth10Throughput() {
         instruction_count_ = _1G() / 20 * 20;
     };
 private:
@@ -338,7 +338,7 @@ private:
 
 class SSEMulAddDepenDepth12Throughput : public IUbench {
 public:
-    SSEMulAddDepenDepth12Throughput(const int64_t freq) : IUbench(freq) {
+    SSEMulAddDepenDepth12Throughput() {
         instruction_count_ = _1G() / 20 * 24;
     };
 private:
@@ -390,63 +390,9 @@ private:
     };
 };
 
-class SSEMulAddDepenDepth12SameSrcThroughput : public IUbench {
-public:
-    SSEMulAddDepenDepth12SameSrcThroughput(const int64_t freq) : IUbench(freq) {
-        instruction_count_ = _1G() / 20 * 24;
-    };
-private:
-    virtual void BenchImpl() override {
-        __asm__ __volatile__ (
-            XMM_INIT()
-            "1:\n"
-            "sub $1, %[LOOP]\n"
-            ".rept 10\n"
-            "mulps %%xmm15, %%xmm0\n"
-            "mulps %%xmm15, %%xmm1\n"
-            "mulps %%xmm15, %%xmm2\n"
-            "mulps %%xmm15, %%xmm3\n"
-
-            "mulps %%xmm15, %%xmm4\n"
-            "mulps %%xmm15, %%xmm5\n"
-            "mulps %%xmm15, %%xmm6\n"
-            "mulps %%xmm15, %%xmm7\n"
-
-            "mulps %%xmm15, %%xmm8\n"
-            "mulps %%xmm15, %%xmm9\n"
-            "mulps %%xmm15, %%xmm10\n"
-            "mulps %%xmm15, %%xmm11\n"
-
-            "addps %%xmm15, %%xmm0\n"
-            "addps %%xmm15, %%xmm1\n"
-            "addps %%xmm15, %%xmm2\n"
-            "addps %%xmm15, %%xmm3\n"
-
-            "addps %%xmm15, %%xmm4\n"
-            "addps %%xmm15, %%xmm5\n"
-            "addps %%xmm15, %%xmm6\n"
-            "addps %%xmm15, %%xmm7\n"
-
-            "addps %%xmm15, %%xmm8\n"
-            "addps %%xmm15, %%xmm9\n"
-            "addps %%xmm15, %%xmm10\n"
-            "addps %%xmm15, %%xmm11\n"
-            ".endr\n"
-            "jne 1b\n"
-            :
-            :
-            [LOOP] "r" (instruction_count_ / 24 / 10)
-            :
-            "cc", "memory",
-            "xmm0" , "xmm1" , "xmm2" , "xmm3" , "xmm4" , "xmm5" , "xmm6" , "xmm7" ,
-            "xmm8" , "xmm9" , "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"
-        );
-    };
-};
-
 class SSEGemmNoAThroughput : public IUbench {
 public:
-    SSEGemmNoAThroughput(const int64_t freq) : IUbench(freq) {
+    SSEGemmNoAThroughput() {
         instruction_count_ = _1G() / 20 * 24;
         memset(B_, 0, sizeof(B_));
     };
@@ -511,12 +457,12 @@ private:
         );
     };
 
-    char B_[4 * 4 * sizeof(float)];
+    char B_[4 * 4 * sizeof(float)] __attribute__ ((aligned(64)));
 };
 
 class SSEGemmM3N16Throughput : public IUbench {
 public:
-    SSEGemmM3N16Throughput(const int64_t freq) : IUbench(freq) {
+    SSEGemmM3N16Throughput() {
         instruction_count_ = _1G() / 20 * 24;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
@@ -591,13 +537,13 @@ private:
         );
     };
 
-    char B_[4 * 4 * sizeof(float)];
-    char A_[3 * sizeof(float)];
+    char B_[4 * 4 * sizeof(float)] __attribute__ ((aligned(64)));
+    char A_[3 * sizeof(float)] __attribute__ ((aligned(64)));
 };
 
 class SSEGemmM2N24Throughput : public IUbench {
 public:
-    SSEGemmM2N24Throughput(const int64_t freq) : IUbench(freq) {
+    SSEGemmM2N24Throughput() {
         instruction_count_ = _1G() / 20 * 24;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
@@ -669,13 +615,13 @@ private:
         );
     };
 
-    char B_[4 * 6 * sizeof(float)];
-    char A_[2 * sizeof(float)];
+    char B_[4 * 6 * sizeof(float)] __attribute__ ((aligned(64)));
+    char A_[2 * sizeof(float)] __attribute__ ((aligned(64)));
 };
 
 class SSEGemmM1N48Throughput : public IUbench {
 public:
-    SSEGemmM1N48Throughput(const int64_t freq) : IUbench(freq) {
+    SSEGemmM1N48Throughput() {
         instruction_count_ = _1G() / 20 * 24;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
@@ -745,39 +691,89 @@ private:
         );
     };
 
-    char B_[4 * 12 * sizeof(float)];
-    char A_[1 * sizeof(float)];
+    char B_[4 * 12 * sizeof(float)] __attribute__ ((aligned(64)));
+    char A_[1 * sizeof(float)] __attribute__ ((aligned(64)));
 };
 
-#define USAGE() "usage: %s <freq by MHz>\n"
+class SSEGemmM2N16Throughput : public IUbench {
+public:
+    SSEGemmM2N16Throughput() {
+        instruction_count_ = _1G() / 20 * 16;
+        memset(B_, 0, sizeof(B_));
+        memset(A_, 0, sizeof(A_));
+    };
+private:
+    virtual void BenchImpl() override {
+        __asm__ __volatile__ (
+            XMM_INIT()
+            "1:\n"
+            "sub $1, %[LOOP]\n"
+            ".rep 10\n"
+            "movups 0(%[B]), %%xmm12\n"
+            "movups 16(%[B]), %%xmm13\n"
+            "movups 32(%[B]), %%xmm14\n"
+            "movups 48(%[B]), %%xmm15\n"
+
+            "movss 0(%[A]), %%xmm8\n"
+            "shufps $0, %%xmm8, %%xmm8\n"
+            "movss 4(%[A]), %%xmm9\n"
+            "shufps $0, %%xmm9, %%xmm9\n"
+
+            "movaps %%xmm12, %%xmm10\n"
+            "movaps %%xmm13, %%xmm11\n"
+            "mulps %%xmm8, %%xmm10\n"
+            "mulps %%xmm8, %%xmm11\n"
+            "addps %%xmm10, %%xmm0\n"
+            "addps %%xmm11, %%xmm1\n"
+
+            "movaps %%xmm14, %%xmm10\n"
+            "movaps %%xmm15, %%xmm11\n"
+            "mulps %%xmm8, %%xmm10\n"
+            "mulps %%xmm8, %%xmm11\n"
+            "addps %%xmm10, %%xmm2\n"
+            "addps %%xmm11, %%xmm3\n"
+
+            "mulps %%xmm9, %%xmm12\n"
+            "mulps %%xmm9, %%xmm13\n"
+            "addps %%xmm12, %%xmm4\n"
+            "addps %%xmm13, %%xmm5\n"
+
+            "mulps %%xmm9, %%xmm14\n"
+            "mulps %%xmm9, %%xmm15\n"
+            "addps %%xmm14, %%xmm6\n"
+            "addps %%xmm15, %%xmm7\n"
+            ".endr\n"
+            "jne 1b\n"
+            :
+            :
+            [LOOP] "r" (instruction_count_ / 16 / 10),
+            [B]    "r" (B_),
+            [A]    "r" (A_)
+            :
+            "cc", "memory",
+            "xmm0" , "xmm1" , "xmm2" , "xmm3" , "xmm4" , "xmm5" , "xmm6" , "xmm7" ,
+            "xmm8" , "xmm9" , "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"
+        );
+    };
+
+    char B_[4 * 4 * sizeof(float)] __attribute__ ((aligned(64)));
+    char A_[2 * sizeof(float)] __attribute__ ((aligned(64)));
+};
 
 int main(int argc, const char **argv) {
-    if (argc != 2) {
-        fprintf(stderr, USAGE(), argv[0]);
-        return 0;
-    }
-
-    int64_t freq = atoi(argv[1]);
-    fprintf(stderr, "Freq: %ld MHz\n", freq);
-    if (freq == 0) {
-        fprintf(stderr, "Invalid Freq\n");
-        return 0;
-    }
-    freq *= _1M();
-
-    fprintf(stderr, "SSE Mul Latency   :\t%.3f cycle\n", SSEMulLatency(freq).BenchCPI(1, 3));
-    fprintf(stderr, "SSE Mul Throughput:\t%.3f per cycle\n", SSEMulThroughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE Add Latency   :\t%.3f cycle\n", SSEAddLatency(freq).BenchCPI(1, 3));
-    fprintf(stderr, "SSE Add Throughput:\t%.3f per cycle\n", SSEAddThroughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE 8x Mul-Add w/o Dep Throughput:\t%.3f per cycle\n", SSEMulAddIndepenDepth8Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE 8x Mul-Add w/ Dep Throughput :\t%.3f per cycle\n", SSEMulAddDepenDepth8Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE 10x Mul-Add w/ Dep Throughput:\t%.3f per cycle\n", SSEMulAddDepenDepth10Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE 12x Mul-Add w/ Dep Throughput:\t%.3f per cycle\n", SSEMulAddDepenDepth12Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE 12x Mul-Add w/ Dep SameSrc Throughput:\t%.3f per cycle\n", SSEMulAddDepenDepth12Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE Gemm w/o A Mul-Add Throughput:\t%.3f per cycle\n", SSEGemmNoAThroughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE Gemm M3N16 Mul-Add Throughput:\t%.3f per cycle\n", SSEGemmM3N16Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE Gemm M2N24 Mul-Add Throughput:\t%.3f per cycle\n", SSEGemmM2N24Throughput(freq).BenchIPC(1, 3));
-    fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f per cycle\n", SSEGemmM1N48Throughput(freq).BenchIPC(1, 3));
+    fprintf(stderr, "SSE Mul Latency   :\t%.3f NanoS\n", SSEMulLatency().BenchNsPI(1, 3));
+    fprintf(stderr, "SSE Mul Throughput:\t%.3f /NanoS\n", SSEMulThroughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Add Latency   :\t%.3f NanoS\n", SSEAddLatency().BenchNsPI(1, 3));
+    fprintf(stderr, "SSE Add Throughput:\t%.3f /NanoS\n", SSEAddThroughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE 8x Mul-Add w/o Dep Throughput:\t%.3f /NanoS\n", SSEMulAddIndepenDepth8Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE 8x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", SSEMulAddDepenDepth8Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE 10x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", SSEMulAddDepenDepth10Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE 12x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", SSEMulAddDepenDepth12Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm w/o A Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmNoAThroughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm M3N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM3N16Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm M2N24 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N24Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N48Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm M2N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N16Throughput().BenchIPNs(1, 3));
 
     return 0;
 }

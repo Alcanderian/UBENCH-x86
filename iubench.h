@@ -10,11 +10,7 @@
 
 class IUbench {
 public:
-    IUbench(const int64_t freq) {
-        ns_per_cycle_ = 1e9 / freq;
-    }
-
-    virtual double BenchCPI(const int64_t warm, const int64_t loop) {
+    virtual double BenchNsPI(const int64_t warm, const int64_t loop) {
         int64_t l = warm;
         while (l--) {
             BenchImpl();
@@ -25,11 +21,11 @@ public:
             BenchImpl();
         }
         auto t1 = std::chrono::high_resolution_clock::now();
-        const double cycle = (t1 - t0).count() / ns_per_cycle_;
-        return cycle / (instruction_count_ * loop);
+        const double ns = (t1 - t0).count();
+        return ns / (instruction_count_ * loop);
     }
 
-    virtual double BenchIPC(const int64_t warm, const int64_t loop) {
+    virtual double BenchIPNs(const int64_t warm, const int64_t loop) {
         int64_t l = warm;
         while (l--) {
             BenchImpl();
@@ -40,14 +36,13 @@ public:
             BenchImpl();
         }
         auto t1 = std::chrono::high_resolution_clock::now();
-        const double cycle = (t1 - t0).count() / ns_per_cycle_;
-        return (instruction_count_ * loop) / cycle;
+        const double ns = (t1 - t0).count();
+        return (instruction_count_ * loop) / ns;
     }
 
     int64_t GetInstructionCount() { return instruction_count_; };
 
 protected:
-    double ns_per_cycle_;
     int64_t instruction_count_;
 
     virtual void BenchImpl() = 0;
