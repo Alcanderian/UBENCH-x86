@@ -695,6 +695,89 @@ private:
     char A_[1 * sizeof(float)] __attribute__ ((aligned(64)));
 };
 
+class SSEGemmM1N56Throughput : public IUbench {
+public:
+    SSEGemmM1N56Throughput() {
+        instruction_count_ = _1G() / 20 * 28;
+        memset(B_, 0, sizeof(B_));
+        memset(A_, 0, sizeof(A_));
+    };
+private:
+    virtual void BenchImpl() override {
+        __asm__ __volatile__ (
+            XMM_INIT()
+            "1:\n"
+            "sub $1, %[LOOP]\n"
+            ".rep 10\n"
+            "movss 0(%[A]), %%xmm14\n"
+            "shufps $0, %%xmm14, %%xmm14\n"
+
+            "movups 0(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm0\n"
+            "movups 16(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm1\n"
+
+            "movups 32(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm2\n"
+            "movups 48(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm3\n"
+
+            "movups 64(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm4\n"
+            "movups 80(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm5\n"
+
+            "movups 96(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm6\n"
+            "movups 112(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm7\n"
+
+            "movups 128(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm8\n"
+            "movups 144(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm9\n"
+
+            "movups 160(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm10\n"
+            "movups 176(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm11\n"
+
+            "movups 192(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm11\n"
+            "movups 208(%[B]), %%xmm15\n"
+            "mulps %%xmm14, %%xmm15\n"
+            "addps %%xmm15, %%xmm12\n"
+            ".endr\n"
+            "jne 1b\n"
+            :
+            :
+            [LOOP] "r" (instruction_count_ / 28 / 10),
+            [B]    "r" (B_),
+            [A]    "r" (A_)
+            :
+            "cc", "memory",
+            "xmm0" , "xmm1" , "xmm2" , "xmm3" , "xmm4" , "xmm5" , "xmm6" , "xmm7" ,
+            "xmm8" , "xmm9" , "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15"
+        );
+    };
+
+    char B_[4 * 14 * sizeof(float)] __attribute__ ((aligned(64)));
+    char A_[1 * sizeof(float)] __attribute__ ((aligned(64)));
+};
+
 class SSEGemmM2N16Throughput : public IUbench {
 public:
     SSEGemmM2N16Throughput() {
@@ -773,6 +856,7 @@ int main(int argc, const char **argv) {
     fprintf(stderr, "SSE Gemm M3N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM3N16Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "SSE Gemm M2N24 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N24Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N48Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N56Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "SSE Gemm M2N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N16Throughput().BenchIPNs(1, 3));
 
     return 0;
