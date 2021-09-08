@@ -856,7 +856,7 @@ int main(int argc, const char **argv) {
     fprintf(stderr, "SSE Gemm M3N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM3N16Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "SSE Gemm M2N24 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N24Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N48Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N56Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "SSE Gemm M1N56 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N56Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "SSE Gemm M2N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N16Throughput().BenchIPNs(1, 3));
 
     return 0;
