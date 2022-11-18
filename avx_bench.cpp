@@ -350,6 +350,50 @@ private:
     };
 };
 
+class AVXMulAddIndepenDepth8Throughput : public IUbench {
+public:
+    AVXMulAddIndepenDepth8Throughput() {
+        instruction_count_ = _1G() / 20 * 16;
+    };
+private:
+    virtual void BenchImpl() override {
+        __asm__ __volatile__ (
+            YMM_INIT()
+            "1:\n"
+            "sub $1, %[LOOP]\n"
+            ".rept 10\n"
+            "vmulps %%ymm0, %%ymm0, %%ymm0\n"
+            "vmulps %%ymm1, %%ymm1, %%ymm1\n"
+            "vmulps %%ymm2, %%ymm2, %%ymm2\n"
+            "vmulps %%ymm3, %%ymm3, %%ymm3\n"
+
+            "vmulps %%ymm4, %%ymm4, %%ymm4\n"
+            "vmulps %%ymm5, %%ymm5, %%ymm5\n"
+            "vmulps %%ymm6, %%ymm6, %%ymm6\n"
+            "vmulps %%ymm7, %%ymm7, %%ymm7\n"
+
+            "vaddps %%ymm8, %%ymm8, %%ymm8\n"
+            "vaddps %%ymm9, %%ymm9, %%ymm9\n"
+            "vaddps %%ymm10, %%ymm10, %%ymm10\n"
+            "vaddps %%ymm11, %%ymm11, %%ymm11\n"
+
+            "vaddps %%ymm12, %%ymm12, %%ymm12\n"
+            "vaddps %%ymm13, %%ymm13, %%ymm13\n"
+            "vaddps %%ymm14, %%ymm14, %%ymm14\n"
+            "vaddps %%ymm15, %%ymm15, %%ymm15\n"
+            ".endr\n"
+            "jne 1b\n"
+            :
+            :
+            [LOOP] "r" (instruction_count_ / 16 / 10)
+            :
+            "cc", "memory",
+            "ymm0" , "ymm1" , "ymm2" , "ymm3" , "ymm4" , "ymm5" , "ymm6" , "ymm7" ,
+            "ymm8" , "ymm9" , "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15"
+        );
+    };
+};
+
 class AVXMulAddDepenDepth10Throughput : public IUbench {
 public:
     AVXMulAddDepenDepth10Throughput() {
@@ -664,6 +708,7 @@ int main(int argc, const char **argv) {
     fprintf(stderr, "AVX 4x Mul-Add w/o Dep Throughput:\t%.3f /NanoS\n", AVXMulAddIndepenDepth4Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "AVX 4x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", AVXMulAddDepenDepth4Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "AVX 6x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", AVXMulAddDepenDepth6Throughput().BenchIPNs(1, 3));
+    fprintf(stderr, "AVX 8x Mul-Add w/o Dep Throughput:\t%.3f /NanoS\n", AVXMulAddIndepenDepth8Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "AVX 8x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", AVXMulAddDepenDepth8Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "AVX 10x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", AVXMulAddDepenDepth10Throughput().BenchIPNs(1, 3));
     fprintf(stderr, "AVX 12x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", AVXMulAddDepenDepth12Throughput().BenchIPNs(1, 3));
