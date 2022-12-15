@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <utility>
 
 #include "iubench.h"
 
@@ -26,9 +27,10 @@ class SSEMulLatency : public IUbench {
 public:
     SSEMulLatency() {
         instruction_count_ = _1G() / 40 * 16;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -70,9 +72,10 @@ class SSEMulThroughput : public IUbench {
 public:
     SSEMulThroughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -114,9 +117,10 @@ class SSEAddLatency : public IUbench {
 public:
     SSEAddLatency() {
         instruction_count_ = _1G() / 40 * 16;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -158,9 +162,10 @@ class SSEAddThroughput : public IUbench {
 public:
     SSEAddThroughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -202,9 +207,10 @@ class SSEMulAddIndepenDepth8Throughput : public IUbench {
 public:
     SSEMulAddIndepenDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -246,9 +252,10 @@ class SSEMulAddDepenDepth8Throughput : public IUbench {
 public:
     SSEMulAddDepenDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -290,9 +297,10 @@ class SSEMulAddDepenDepth10Throughput : public IUbench {
 public:
     SSEMulAddDepenDepth10Throughput() {
         instruction_count_ = _1G() / 20 * 20;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -340,9 +348,10 @@ class SSEMulAddDepenDepth12Throughput : public IUbench {
 public:
     SSEMulAddDepenDepth12Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 4;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -394,10 +403,11 @@ class SSEGemmNoAThroughput : public IUbench {
 public:
     SSEGemmNoAThroughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -464,11 +474,12 @@ class SSEGemmM4N8Throughput : public IUbench {
 public:
     SSEGemmM4N8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -528,11 +539,12 @@ class SSEGemmM3N16Throughput : public IUbench {
 public:
     SSEGemmM3N16Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -609,11 +621,12 @@ class SSEGemmM2N24Throughput : public IUbench {
 public:
     SSEGemmM2N24Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -687,11 +700,12 @@ class SSEGemmM1N48Throughput : public IUbench {
 public:
     SSEGemmM1N48Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -763,11 +777,12 @@ class SSEGemmM1N56Throughput : public IUbench {
 public:
     SSEGemmM1N56Throughput() {
         instruction_count_ = _1G() / 20 * 28;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -846,11 +861,12 @@ class SSEGemmM2N16Throughput : public IUbench {
 public:
     SSEGemmM2N16Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 4;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             XMM_INIT()
             "1:\n"
@@ -908,21 +924,37 @@ private:
 };
 
 int main(int argc, const char **argv) {
-    fprintf(stderr, "SSE Mul Latency   :\t%.3f NanoS\n", SSEMulLatency().BenchNsPI(1, 3));
-    fprintf(stderr, "SSE Mul Throughput:\t%.3f /NanoS\n", SSEMulThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Add Latency   :\t%.3f NanoS\n", SSEAddLatency().BenchNsPI(1, 3));
-    fprintf(stderr, "SSE Add Throughput:\t%.3f /NanoS\n", SSEAddThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE 8x Mul-Add w/o Dep Throughput:\t%.3f /NanoS\n", SSEMulAddIndepenDepth8Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE 8x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", SSEMulAddDepenDepth8Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE 10x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", SSEMulAddDepenDepth10Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE 12x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", SSEMulAddDepenDepth12Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm w/o A Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmNoAThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M4N8 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM4N8Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M3N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM3N16Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M2N24 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N24Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M1N48 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N48Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M1N56 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM1N56Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "SSE Gemm M2N16 Mul-Add Throughput:\t%.3f /NanoS\n", SSEGemmM2N16Throughput().BenchIPNs(1, 3));
+    std::pair<const char*, IUbench*> lat_list[] = {
+        {"SSE Mul Latency                   : %.3f ns\n", new SSEMulLatency},
+        {"SSE Add Latency                   : %.3f ns\n", new SSEAddLatency},
+    };
+    std::pair<const char*, IUbench*> tp_list[] {
+        {"SSE Mul Throughput                : %.3f /ns,\t GFLOPs: %.3f\n", new SSEMulThroughput},
+        {"SSE Add Throughput                : %.3f /ns,\t GFLOPs: %.3f\n", new SSEAddThroughput},
+        {"SSE 8x  Mul-Add w/o Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new SSEMulAddIndepenDepth8Throughput},
+        {"SSE 8x  Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new SSEMulAddDepenDepth8Throughput},
+        {"SSE 10x Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new SSEMulAddDepenDepth10Throughput},
+        {"SSE 12x Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new SSEMulAddDepenDepth12Throughput},
+        {"SSE Gemm w/o A Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmNoAThroughput},
+        {"SSE Gemm M4N8  Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmM4N8Throughput},
+        {"SSE Gemm M3N16 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmM3N16Throughput},
+        {"SSE Gemm M2N24 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmM2N24Throughput},
+        {"SSE Gemm M1N48 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmM1N48Throughput},
+        {"SSE Gemm M1N56 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmM1N56Throughput},
+        {"SSE Gemm M2N16 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new SSEGemmM2N16Throughput},
+    };
+
+    for (auto p : lat_list) {
+        p.second->Bench(1, 3);
+        fprintf(stderr, p.first, p.second->CalNsPerInstruction());
+        delete p.second;
+    }
+
+    for (auto p : tp_list) {
+        p.second->Bench(1, 3);
+        fprintf(stderr, p.first, p.second->CalInstructionPerNs(), p.second->CalOpsPerNs());
+        delete p.second;
+    }
 
     return 0;
 }

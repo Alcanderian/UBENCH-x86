@@ -4,7 +4,7 @@ SSEFLAGS=-msse4.2
 AVXFLAGS=-mavx
 FMAFLAGS=-mfma -mavx2
 
-all:sse_bench avx_bench fma_bench
+all:sse_bench avx_bench fma_bench omp_bench
 
 sse_bench:
 	$(CXX) $(CXXFLAGS) $(SSEFLAGS) -o $@.exe $@.cpp
@@ -14,6 +14,9 @@ avx_bench:
 
 fma_bench:
 	$(CXX) $(CXXFLAGS) $(FMAFLAGS) -o $@.exe $@.cpp
+
+omp_bench:
+	$(CXX) $(CXXFLAGS) $(SSEFLAGS) -o $@.exe $@.cpp -fopenmp
 
 clean:
 	rm *.exe

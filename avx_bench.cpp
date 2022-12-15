@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <utility>
 
 #include "iubench.h"
 
@@ -26,9 +27,10 @@ class AVXMulLatency : public IUbench {
 public:
     AVXMulLatency() {
         instruction_count_ = _1G() / 40 * 16;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -70,9 +72,10 @@ class AVXMulThroughput : public IUbench {
 public:
     AVXMulThroughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -114,9 +117,10 @@ class AVXAddLatency : public IUbench {
 public:
     AVXAddLatency() {
         instruction_count_ = _1G() / 40 * 16;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -158,9 +162,10 @@ class AVXAddThroughput : public IUbench {
 public:
     AVXAddThroughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -202,9 +207,10 @@ class AVXMulAddIndepenDepth4Throughput : public IUbench {
 public:
     AVXMulAddIndepenDepth4Throughput() {
         instruction_count_ = _1G() / 20 * 8;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -236,9 +242,10 @@ class AVXMulAddDepenDepth4Throughput : public IUbench {
 public:
     AVXMulAddDepenDepth4Throughput() {
         instruction_count_ = _1G() / 20 * 8;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -270,9 +277,10 @@ class AVXMulAddDepenDepth6Throughput : public IUbench {
 public:
     AVXMulAddDepenDepth6Throughput() {
         instruction_count_ = _1G() / 20 * 12;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -310,9 +318,10 @@ class AVXMulAddDepenDepth8Throughput : public IUbench {
 public:
     AVXMulAddDepenDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -354,9 +363,10 @@ class AVXMulAddIndepenDepth8Throughput : public IUbench {
 public:
     AVXMulAddIndepenDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -398,9 +408,10 @@ class AVXMulAddDepenDepth10Throughput : public IUbench {
 public:
     AVXMulAddDepenDepth10Throughput() {
         instruction_count_ = _1G() / 20 * 20;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -448,9 +459,10 @@ class AVXMulAddDepenDepth12Throughput : public IUbench {
 public:
     AVXMulAddDepenDepth12Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 8;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -502,10 +514,11 @@ class AVXGemmNoAThroughput : public IUbench {
 public:
     AVXGemmNoAThroughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 8;
         memset(B_, 0, sizeof(B_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -563,11 +576,12 @@ class AVXGemmM6N16Throughput : public IUbench {
 public:
     AVXGemmM6N16Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 8;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -633,11 +647,12 @@ class AVXGemmM2N48Throughput : public IUbench {
 public:
     AVXGemmM2N48Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 8;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -700,21 +715,36 @@ private:
 };
 
 int main(int argc, const char **argv) {
+    std::pair<const char*, IUbench*> lat_list[] = {
+        {"AVX Mul Latency                   : %.3f ns\n", new AVXMulLatency},
+        {"AVX Add Latency                   : %.3f ns\n", new AVXAddLatency},
+    };
+    std::pair<const char*, IUbench*> tp_list[] {
+        {"AVX Mul Throughput                : %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulThroughput},
+        {"AVX Add Throughput                : %.3f /ns,\t GFLOPs: %.3f\n", new AVXAddThroughput},
+        {"AVX 4x  Mul-Add w/o Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddIndepenDepth4Throughput},
+        {"AVX 4x  Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddDepenDepth4Throughput},
+        {"AVX 6x  Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddDepenDepth6Throughput},
+        {"AVX 8x  Mul-Add w/o Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddIndepenDepth8Throughput},
+        {"AVX 8x  Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddDepenDepth8Throughput},
+        {"AVX 10x Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddDepenDepth10Throughput},
+        {"AVX 12x Mul-Add w/  Dep Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new AVXMulAddDepenDepth12Throughput},
+        {"AVX Gemm w/o A Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new AVXGemmNoAThroughput},
+        {"AVX Gemm M6N16 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new AVXGemmM6N16Throughput},
+        {"AVX Gemm M2N48 Mul-Add Throughput : %.3f /ns,\t GFLOPs: %.3f\n", new AVXGemmM2N48Throughput},
+    };
 
-    fprintf(stderr, "AVX Mul Latency   :\t%.3f NanoS\n", AVXMulLatency().BenchNsPI(1, 3));
-    fprintf(stderr, "AVX Mul Throughput:\t%.3f /NanoS\n", AVXMulThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX Add Latency   :\t%.3f NanoS\n", AVXAddLatency().BenchNsPI(1, 3));
-    fprintf(stderr, "AVX Add Throughput:\t%.3f /NanoS\n", AVXAddThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 4x Mul-Add w/o Dep Throughput:\t%.3f /NanoS\n", AVXMulAddIndepenDepth4Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 4x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", AVXMulAddDepenDepth4Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 6x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", AVXMulAddDepenDepth6Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 8x Mul-Add w/o Dep Throughput:\t%.3f /NanoS\n", AVXMulAddIndepenDepth8Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 8x Mul-Add w/ Dep Throughput :\t%.3f /NanoS\n", AVXMulAddDepenDepth8Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 10x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", AVXMulAddDepenDepth10Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX 12x Mul-Add w/ Dep Throughput:\t%.3f /NanoS\n", AVXMulAddDepenDepth12Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX Gemm w/o A Mul-Add Throughput:\t%.3f /NanoS\n", AVXGemmNoAThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX Gemm M6N16 Mul-Add Throughput:\t%.3f /NanoS\n", AVXGemmM6N16Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "AVX Gemm M2N48 Mul-Add Throughput:\t%.3f /NanoS\n", AVXGemmM2N48Throughput().BenchIPNs(1, 3));
+    for (auto p : lat_list) {
+        p.second->Bench(1, 3);
+        fprintf(stderr, p.first, p.second->CalNsPerInstruction());
+        delete p.second;
+    }
+
+    for (auto p : tp_list) {
+        p.second->Bench(1, 3);
+        fprintf(stderr, p.first, p.second->CalInstructionPerNs(), p.second->CalOpsPerNs());
+        delete p.second;
+    }
 
     return 0;
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <utility>
 
 #include "iubench.h"
 
@@ -26,9 +27,10 @@ class FMAMacLatency : public IUbench {
 public:
     FMAMacLatency() {
         instruction_count_ = _1G() / 40 * 16;
+        ops_count_ = instruction_count_ * 16;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -70,9 +72,10 @@ class FMAMacThroughput : public IUbench {
 public:
     FMAMacThroughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 16;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -114,9 +117,10 @@ class FMAMacAddThroughput : public IUbench {
 public:
     FMAMacAddThroughput() {
         instruction_count_ = _1G() / 20 * 32;
+        ops_count_ = instruction_count_ * 12;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -174,9 +178,10 @@ class FMAMacMulThroughput : public IUbench {
 public:
     FMAMacMulThroughput() {
         instruction_count_ = _1G() / 20 * 32;
+        ops_count_ = instruction_count_ * 12;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -234,9 +239,10 @@ class FMAMacDepth8Throughput : public IUbench {
 public:
     FMAMacDepth8Throughput() {
         instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 16;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -278,9 +284,10 @@ class FMAMacDepth10Throughput : public IUbench {
 public:
     FMAMacDepth10Throughput() {
         instruction_count_ = _1G() / 20 * 20;
+        ops_count_ = instruction_count_ * 16;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -328,9 +335,10 @@ class FMAMacDepth12Throughput : public IUbench {
 public:
     FMAMacDepth12Throughput() {
         instruction_count_ = _1G() / 20 * 24;
+        ops_count_ = instruction_count_ * 16;
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -382,10 +390,11 @@ class FMAGemmNoAThroughput : public IUbench {
 public:
     FMAGemmNoAThroughput() {
         instruction_count_ = _1G() / 20 * 12;
+        ops_count_ = instruction_count_ * 16;
         memset(B_, 0, sizeof(B_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -431,11 +440,12 @@ class FMAGemmM6N16Throughput : public IUbench {
 public:
     FMAGemmM6N16Throughput() {
         instruction_count_ = _1G() / 20 * 12;
+        ops_count_ = instruction_count_ * 16;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -489,11 +499,12 @@ class FMAGemmM4N24Throughput : public IUbench {
 public:
     FMAGemmM4N24Throughput() {
         instruction_count_ = _1G() / 20 * 12;
+        ops_count_ = instruction_count_ * 16;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -544,11 +555,12 @@ class FMAGemmM3N32Throughput : public IUbench {
 public:
     FMAGemmM3N32Throughput() {
         instruction_count_ = _1G() / 20 * 12;
+        ops_count_ = instruction_count_ * 16;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -599,11 +611,12 @@ class FMAGemmM2N48Throughput : public IUbench {
 public:
     FMAGemmM2N48Throughput() {
         instruction_count_ = _1G() / 20 * 12;
+        ops_count_ = instruction_count_ * 16;
         memset(B_, 0, sizeof(B_));
         memset(A_, 0, sizeof(A_));
     };
 private:
-    virtual void BenchImpl() override {
+    void BenchImpl() override {
         __asm__ __volatile__ (
             YMM_INIT()
             "1:\n"
@@ -654,19 +667,34 @@ private:
 };
 
 int main(int argc, const char **argv) {
+    std::pair<const char*, IUbench*> lat_list[] = {
+        {"FMA Mac Latency              : %.3f ns\n", new FMAMacLatency},
+    };
+    std::pair<const char*, IUbench*> tp_list[] {
+        {"FMA Mac Throughput           : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacThroughput},
+        {"FMA Mac+Add Throughput       : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacAddThroughput},
+        {"FMA Mac+Mul Throughput       : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacMulThroughput},
+        {"FMA 8x Mac  Throughput       : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacDepth8Throughput},
+        {"FMA 10x Mac Throughput       : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacDepth10Throughput},
+        {"FMA 12x Mac Throughput       : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacDepth12Throughput},
+        {"FMA Gemm w/o A Mac Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new FMAGemmNoAThroughput},
+        {"FMA Gemm M6N16 Mac Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new FMAGemmM6N16Throughput},
+        {"FMA Gemm M4N24 Mac Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new FMAGemmM4N24Throughput},
+        {"FMA Gemm M3N32 Mac Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new FMAGemmM3N32Throughput},
+        {"FMA Gemm M2N48 Mac Throughput: %.3f /ns,\t GFLOPs: %.3f\n", new FMAGemmM2N48Throughput},
+    };
 
-    fprintf(stderr, "FMA Mac Latency       :\t%.3f NanoS\n", FMAMacLatency().BenchNsPI(1, 3));
-    fprintf(stderr, "FMA Mac Throughput    :\t%.3f /NanoS\n", FMAMacThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Mac+Add Throughput:\t%.3f /NanoS\n", FMAMacAddThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Mac+Mul Throughput:\t%.3f /NanoS\n", FMAMacMulThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA 8x Mac Throughput :\t%.3f /NanoS\n", FMAMacDepth8Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA 10x Mac Throughput:\t%.3f /NanoS\n", FMAMacDepth10Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA 12x Mac Throughput:\t%.3f /NanoS\n", FMAMacDepth12Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Gemm w/o A Mac Throughput:\t%.3f /NanoS\n", FMAGemmNoAThroughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Gemm M6N16 Mac Throughput:\t%.3f /NanoS\n", FMAGemmM6N16Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Gemm M4N24 Mac Throughput:\t%.3f /NanoS\n", FMAGemmM4N24Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Gemm M3N32 Mac Throughput:\t%.3f /NanoS\n", FMAGemmM3N32Throughput().BenchIPNs(1, 3));
-    fprintf(stderr, "FMA Gemm M2N48 Mac Throughput:\t%.3f /NanoS\n", FMAGemmM2N48Throughput().BenchIPNs(1, 3));
+    for (auto p : lat_list) {
+        p.second->Bench(1, 3);
+        fprintf(stderr, p.first, p.second->CalNsPerInstruction());
+        delete p.second;
+    }
+
+    for (auto p : tp_list) {
+        p.second->Bench(1, 3);
+        fprintf(stderr, p.first, p.second->CalInstructionPerNs(), p.second->CalOpsPerNs());
+        delete p.second;
+    }
 
     return 0;
 }
