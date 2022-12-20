@@ -18,5 +18,8 @@ fma_bench:
 omp_bench:
 	$(CXX) $(CXXFLAGS) $(SSEFLAGS) -o $@.exe $@.cpp -fopenmp
 
+xbyak_test:
+	$(CXX) $(CXXFLAGS) -o $@.exe $@.cpp
+
 clean:
 	rm *.exe
