@@ -22,7 +22,7 @@ public:
         return ((double)ops_count_ * iter_) / ns_;
     }
 
-    virtual double Bench(const int64_t warm_up, const int64_t iter) {
+    virtual void Bench(const int64_t warm_up, const int64_t iter) {
         warm_up_ = warm_up;
         iter_ = iter;
         int64_t l = warm_up;
