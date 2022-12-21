@@ -54,6 +54,10 @@ private:
 
 public:
     void preamble() {
+        for (uint32_t i = 0; i < num_abi_save_gpr_regs_; ++i)
+            push(Xbyak::Reg64(abi_save_gpr_regs[i]));
+        // enable some backtrace
+        mov(rbp, rsp);
         if (xmm_to_preserve_) {
             sub(rsp, xmm_to_preserve_ * xmm_len_);
             for (uint32_t i = 0; i < xmm_to_preserve_; ++i) {
@@ -63,8 +67,6 @@ public:
                     vmovdqu(ptr[rsp + i * xmm_len_], Xbyak::Xmm(xmm_to_preserve_start_ + i));
             }
         }
-        for (uint32_t i = 0; i < num_abi_save_gpr_regs_; ++i)
-            push(Xbyak::Reg64(abi_save_gpr_regs[i]));
 #ifdef _WIN32
         mov(uni_param_ptr_reg_, Xbyak::Reg64(abi_param_regs[0]));
 #endif
@@ -73,8 +75,6 @@ public:
     void postamble() {
         if (!sse_only_)
             vzeroupper();
-        for (uint32_t i = 0; i < num_abi_save_gpr_regs_; ++i)
-            pop(Xbyak::Reg64(abi_save_gpr_regs[num_abi_save_gpr_regs_ - 1 - i]));
         if (xmm_to_preserve_) {
             for (uint32_t i = 0; i < xmm_to_preserve_; ++i) {
                 if (sse_only_)
@@ -84,6 +84,8 @@ public:
             }
             add(rsp, xmm_to_preserve_ * xmm_len_);
         }
+        for (uint32_t i = 0; i < num_abi_save_gpr_regs_; ++i)
+            pop(Xbyak::Reg64(abi_save_gpr_regs[num_abi_save_gpr_regs_ - 1 - i]));
         ret();
     }
 
@@ -280,6 +282,114 @@ private:
     char A_[6 * sizeof(float)] __attribute__ ((aligned(64)));
 };
 
+class AVX512MacThroughput : public IUbench, public jit_base {
+public:
+    AVX512MacThroughput() {
+        instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 32;
+        create_kernel();
+    }
+private:
+    void BenchImpl() override {
+        jit_ker_(&instruction_count_);
+    }
+
+    void generate() override {
+        Xbyak::Zmm zms[16] = {
+            zmm0, zmm1, zmm2, zmm3, zmm4, zmm5, zmm6, zmm7,
+            zmm8, zmm9, zmm10, zmm11, zmm12, zmm13, zmm14, zmm15,
+        };
+
+        preamble();
+        mov(rax, ptr[uni_param_ptr_reg_]);
+        for (auto z : zms)
+            vpxord(z, z, z);
+
+        Xbyak::Label inner_loop;
+        L(inner_loop);
+        sub(rax, 10 * 16);
+        for (int32_t i = 0; i < 10; ++i) {
+            for (auto z : zms)
+                vfmadd231ps(z, z, z);
+        }
+        jne(inner_loop);
+
+        postamble();
+    }
+};
+
+class AVX512VNNIThroughput : public IUbench, public jit_base {
+public:
+    AVX512VNNIThroughput() {
+        instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 32 * 4;
+        create_kernel();
+    }
+private:
+    void BenchImpl() override {
+        jit_ker_(&instruction_count_);
+    }
+
+    void generate() override {
+        Xbyak::Zmm zms[16] = {
+            zmm0, zmm1, zmm2, zmm3, zmm4, zmm5, zmm6, zmm7,
+            zmm8, zmm9, zmm10, zmm11, zmm12, zmm13, zmm14, zmm15,
+        };
+
+        preamble();
+        mov(rax, ptr[uni_param_ptr_reg_]);
+        for (auto z : zms)
+            vpxord(z, z, z);
+
+        Xbyak::Label inner_loop;
+        L(inner_loop);
+        sub(rax, 10 * 16);
+        for (int32_t i = 0; i < 10; ++i) {
+            for (auto z : zms)
+                vpdpbusds(z, z, z);
+        }
+        jne(inner_loop);
+
+        postamble();
+    }
+};
+
+class AVXVNNIThroughput : public IUbench, public jit_base {
+public:
+    AVXVNNIThroughput() {
+        instruction_count_ = _1G() / 20 * 16;
+        ops_count_ = instruction_count_ * 16 * 4;
+        create_kernel();
+    }
+private:
+    void BenchImpl() override {
+        jit_ker_(&instruction_count_);
+    }
+
+    void generate() override {
+        Xbyak::Ymm yms[16] = {
+            ymm0, ymm1, ymm2, ymm3, ymm4, ymm5, ymm6, ymm7,
+            ymm8, ymm9, ymm10, ymm11, ymm12, ymm13, ymm14, ymm15,
+        };
+
+        preamble();
+        mov(rax, ptr[uni_param_ptr_reg_]);
+        for (auto y : yms)
+            vxorps(y, y);
+
+        Xbyak::Label inner_loop;
+        L(inner_loop);
+        sub(rax, 10 * 16);
+        for (int32_t i = 0; i < 10; ++i) {
+            for (auto y : yms)
+                vpdpbusds(y, y, y, Xbyak::VexEncoding);
+        }
+        jne(inner_loop);
+
+        postamble();
+    }
+};
+
 int main(int argc, const char **argv) {
     std::pair<const char*, IUbench*> lat_list[] = {
         {"SSE Mul Latency                   : %.3f ns\n", new SSEMulLatency},
@@ -289,6 +399,9 @@ int main(int argc, const char **argv) {
         {"SSE Mul Throughput                : %.3f /ns,\t GFLOPs: %.3f\n", new SSEMulThroughput},
         {"FMA Mac Throughput                : %.3f /ns,\t GFLOPs: %.3f\n", new FMAMacThroughput},
         {"FMA Gemm M6N16 Mac Throughput     : %.3f /ns,\t GFLOPs: %.3f\n", new FMAGemmM6N16Throughput},
+        {"AVX512 Mac Throughput             : %.3f /ns,\t GFLOPs: %.3f\n", new AVX512MacThroughput},
+        {"AVX512 VNNI Throughput            : %.3f /ns,\t GFLOPs: %.3f\n", new AVX512VNNIThroughput},
+        {"AVX VNNI Throughput               : %.3f /ns,\t GFLOPs: %.3f\n", new AVXVNNIThroughput},
     };
 
     for (auto p : lat_list) {
