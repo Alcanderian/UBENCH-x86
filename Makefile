@@ -1,8 +1,8 @@
-CXX=g++
-CXXFLAGS=-O2 -g -std=c++11
-SSEFLAGS=-msse4.2
-AVXFLAGS=-mavx
-FMAFLAGS=-mfma -mavx2
+CXX?=g++
+CXXFLAGS+=-O2 -g -std=c++11
+SSEFLAGS?=-msse4.2
+AVXFLAGS?=-mavx
+FMAFLAGS?=-mfma -mavx2
 
 all:sse_bench avx_bench fma_bench omp_bench
 

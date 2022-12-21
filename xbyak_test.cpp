@@ -10,12 +10,12 @@ typedef void(*jit_ker_t)(int64_t*);
 
 // from oneDNN
 Xbyak::Operand::Code abi_save_gpr_regs[] = {
-        Xbyak::Operand::RBX,
         Xbyak::Operand::RBP,
-        Xbyak::Operand::R12,
-        Xbyak::Operand::R13,
-        Xbyak::Operand::R14,
         Xbyak::Operand::R15,
+        Xbyak::Operand::R14,
+        Xbyak::Operand::R13,
+        Xbyak::Operand::R12,
+        Xbyak::Operand::RBX,
 #ifdef _WIN32
         Xbyak::Operand::RDI,
         Xbyak::Operand::RSI,
@@ -150,7 +150,7 @@ private:
         sub(rax, 10 * 16);
         for (int32_t i = 0; i < 10 * 16; ++i)
             mulps(xmm0, xmm0);
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
@@ -186,7 +186,7 @@ private:
             for (auto x : xms)
                 mulps(x, x);
         }
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
@@ -222,7 +222,7 @@ private:
             for (auto y : yms)
                 vfmadd231ps(y, y, y);
         }
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
@@ -272,7 +272,7 @@ private:
                 vfmadd231ps(yms[j * 2 + 1], yms[12], yms[15]);
             }
         }
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
@@ -312,7 +312,7 @@ private:
             for (auto z : zms)
                 vfmadd231ps(z, z, z);
         }
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
@@ -348,7 +348,7 @@ private:
             for (auto z : zms)
                 vpdpbusds(z, z, z);
         }
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
@@ -360,6 +360,14 @@ public:
         instruction_count_ = _1G() / 20 * 16;
         ops_count_ = instruction_count_ * 16 * 4;
         create_kernel();
+#ifdef DUMP_JIT
+        // cmd: objdump -D -b binary -mi386:x86-6 avx_vnni_tp.obj
+        FILE *fp = fopen("avx_vnni_tp.obj", "wb");
+        if (fp) {
+            fwrite((const void*)jit_ker_, getSize(), 1, fp);
+            fclose(fp);
+        }
+#endif
     }
 private:
     void BenchImpl() override {
@@ -384,7 +392,7 @@ private:
             for (auto y : yms)
                 vpdpbusds(y, y, y, Xbyak::VexEncoding);
         }
-        jne(inner_loop);
+        jne(inner_loop, T_NEAR);
 
         postamble();
     }
