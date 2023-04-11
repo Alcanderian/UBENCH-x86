@@ -38,6 +38,25 @@ public:
         ns_ = (t1 - t0).count();
     }
 
+    virtual int64_t BenchLimitTime(const int64_t warm_up, const int64_t iter, const double ms) {
+        warm_up_ = warm_up;
+        iter_ = iter;
+        int64_t l = warm_up;
+        while (l--) {
+            BenchImpl();
+        }
+        l = 0;
+        ns_ = 0;
+        while (l < iter || ns_ < ms * 1e6) {
+            auto t0 = std::chrono::high_resolution_clock::now();
+            BenchImpl();
+            auto t1 = std::chrono::high_resolution_clock::now();
+            l++;
+            ns_ += (t1 - t0).count();
+        }
+        return l;
+    }
+
     int64_t GetWarmUp() { return warm_up_; }
     int64_t GetIter() { return iter_; }
     int64_t GetNs() { return ns_; }
